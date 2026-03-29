@@ -64,6 +64,36 @@ def submit():
     return jsonify({"message": "ok"}), 200
 
 
+@app.route("/submittodoitem", methods=["POST"])
+def submit_todo_item():
+    uri = os.getenv("MONGODB_URI", "")
+    db_name = os.getenv("MONGODB_DB_NAME", "")
+    collection_name = os.getenv("MONGODB_TODO_COLLECTION_NAME", "todo_items")
+
+    if uri.strip() == "":
+        return jsonify({"error": "ERROR: MONGODB_URI is missing in .env"}), 400
+
+    data = request.get_json(silent=True) or {}
+    item_name = (data.get("itemName") or "").strip()
+    item_description = (data.get("itemDescription") or "").strip()
+
+    if item_name == "" or item_description == "":
+        return jsonify({"error": "itemName and itemDescription are required"}), 400
+
+    client = MongoClient(uri)
+    db = client[db_name]
+    collection = db[collection_name]
+    collection.insert_one(
+        {
+            "itemName": item_name,
+            "itemDescription": item_description,
+        }
+    )
+    client.close()
+
+    return jsonify({"message": "Todo item saved successfully"}), 200
+
+
 @app.route("/form")
 def form_page():
     return redirect("/form.html")
@@ -72,11 +102,6 @@ def form_page():
 @app.route("/success")
 def success_page():
     return redirect("/success.html")
-
-
-@app.route("/submittodoitem")
-def todo_page():
-    return redirect("/todo.html")
 
 
 if __name__ == "__main__":
