@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Book Recommendation Form</title>
+  <script>
+    async function submitForm(e) {
+      e.preventDefault();
+
+      let title = document.getElementById("title").value.trim();
+      let author = document.getElementById("author").value.trim();
+
+      let msg = document.getElementById("msg");
+      msg.textContent = "";
+
+      if (title === "" || author === "") {
+        msg.textContent = "ERROR: Title and author are required";
+        return;
+      }
+
+      try {
+        let res = await fetch("/submit", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ title: title, author: author })
+        });
+
+        let data = await res.json();
+
+        if (!res.ok) {
+          msg.textContent = data.error || "Error";
+          return;
+        }
+
+        window.location.href = "success.html";
+      } catch (err) {
+        msg.textContent = err.toString();
+      }
+    }
+  </script>
+</head>
+<body>
+  <h2>Book Recommendation Form</h2>
+
+  <p id="msg" style="color: red;"></p>
+
+  <form id="myForm">
+    <label>Title</label><br>
+    <input id="title" type="text"><br><br>
+
+    <label>Author</label><br>
+    <textarea id="author"></textarea><br><br>
+
+    <button type="submit" onclick="submitForm(event)">Submit</button>
+  </form>
+</body>
+</html>
