@@ -74,5 +74,10 @@ def success_page():
     return redirect("/success.html")
 
 
+@app.route("/submittodoitem")
+def todo_page():
+    return redirect("/todo.html")
+
+
 if __name__ == "__main__":
     app.run(debug=True)
